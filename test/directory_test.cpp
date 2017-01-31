@@ -79,9 +79,9 @@ struct DirectoryTest : public tpunit::TestFixture
 					EXPECT_FALSE(file2_found);
 					file2_found = true;
 				}
-				else if (FileName(".") != f)
+                else if (FileName(".") != f.Name())
 				{
-					EXPECT_EQUAL(FileName(".."), f);
+                    EXPECT_EQUAL(FileName(".."), f.Name());
 				}
 			}
 
@@ -91,7 +91,7 @@ struct DirectoryTest : public tpunit::TestFixture
 			EXPECT_TRUE(file2_found);
 		}
 
-		RemoveTestDir(test_dir, files, dirs);
+        RemoveTestDir(test_dir, dirs, files);
 	}
 
 	bool SetupTestDir(
@@ -139,7 +139,7 @@ struct DirectoryTest : public tpunit::TestFixture
 			FileName(test_dir, d).RmDir();
 		}
 
-		return test_dir.MkDir();
+        return test_dir.RmDir();
 	}
 
 } DirectoryTest;
