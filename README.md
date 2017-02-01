@@ -23,18 +23,17 @@ WavToMp3 has been compiled and tested using:
 
 ## Open Source Libraries
 WavToMp3 tool depends on two libraries:
-* libmp3lame (LAME Encoder, included in the source tree) and
-* libsndfile (PCM-format reader, must be installed separately)
+* libmp3lame (LAME Encoder, included in the source tree)
+* libsndfile (PCM-format reader, must be installed separately) and
 * tpunit++ (minimalistic unit-testing framework)
 
-## Installing Prequistes (libsndfile)
-In order to build and run WavToMp3 too, libsndfile must be installed and placed in a location from which it can be used - directory listed in ld.path.conf file on Linux or PATH environment variable on Windows.
-
-If the library is installed on a non-standard location or on 32bit Windows system, it's path should be updated in libraries.pri.
-
-Source tarball and binary installer can be found in libsndfile directory or downloaded from http://www.mega-nerd.com/libsndfile
+## Prequistes (libsndfile) Check-List
+* On Linux, libsndfile.so must be placed in a directory specified by ld.path.conf or one of files included by it
+* On Windows, the directory containing libsdnfile-1.dll must be added to the PATH environment variable
+* On 32-bit Windows, library's default location is different, causing builds to fail unless *libraries.pri* is updated.
+* Source tarball and binary installer can be found in libsndfile directory or downloaded from http://www.mega-nerd.com/libsndfile
 
 ## Testing
 The project includes a set of unit-test which validate behaviour of implemented classes.
 
-Automating end-to-end and audio quality testing hasn't been done.
+End-to-end and audio quality testing hasn't been automated and must be performed manualy.
