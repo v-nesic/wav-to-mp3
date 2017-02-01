@@ -8,15 +8,22 @@ ThreadPool::ThreadPool(unsigned int max_threads) :
 {
 }
 
+ThreadPool::~ThreadPool()
+{
+	for(unsigned int i = 0; i < _max_threads; ++i)
+	{
+		_semaphore.Wait();
+	}
+}
+
 bool ThreadPool::StartNew(std::function<void ()> thread_fn)
 {
 	bool started  = false;
 
 	if (_semaphore.Wait())
 	{
-		PosixThread* thread = new PosixThread(thread_fn);
+		PosixThread* thread = new PosixThread(thread_fn, this);
 
-		thread->SetObserver(this);
 		started = thread->Start();
 
 		if (!started)
@@ -27,14 +34,6 @@ bool ThreadPool::StartNew(std::function<void ()> thread_fn)
 	}
 
 	return started;
-}
-
-void ThreadPool::JoinAll()
-{
-	for(unsigned int i = 0; i < _max_threads; ++i)
-	{
-		_semaphore.Wait();
-	}
 }
 
 void ThreadPool::ThreadFinished(PosixThread* thread)

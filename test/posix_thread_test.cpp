@@ -7,13 +7,13 @@
 
 using std::atomic;
 
-class ThreadObserver : private PosixThread::Observer
+class ThreadObserver : public PosixThread::Owner
 {
 public:
-	ThreadObserver(PosixThread& thread) : _sem(0) { thread.SetObserver(this); }
+	ThreadObserver() : _sem(0) { }
 	bool WaitForThreadFinished() { return _sem.Wait(); }
-private:
 	virtual void ThreadFinished(PosixThread*) { _sem.Post(); }
+private:
 	PosixSemaphore _sem;
 };
 
@@ -30,11 +30,11 @@ struct PosixThreadTest : public tpunit::TestFixture
 	{
 		bool done = false;
 		PosixSemaphore sem(0);
-		PosixThread thread([&done] () { done = true; });
-		ThreadObserver observer(thread);
+		ThreadObserver owner;
+		PosixThread thread([&done] () { done = true; }, &owner);
 
 		ASSERT_TRUE(thread.Start());
-		EXPECT_TRUE(observer.WaitForThreadFinished());
+		EXPECT_TRUE(owner.WaitForThreadFinished());
 		EXPECT_TRUE(done);
 	}
 
@@ -44,11 +44,11 @@ struct PosixThreadTest : public tpunit::TestFixture
 		atomic<int> threads_done(0);
 		auto thread_fn = [&threads_done] () { ++threads_done; };
 
-		PosixThread thread1(thread_fn);
-		PosixThread thread2(thread_fn);
+		ThreadObserver observer1;
+		ThreadObserver observer2;
 
-		ThreadObserver observer1(thread1);
-		ThreadObserver observer2(thread2);
+		PosixThread thread1(thread_fn, &observer1);
+		PosixThread thread2(thread_fn, &observer2);
 
 		ASSERT_TRUE(thread1.Start());
 		ASSERT_TRUE(thread2.Start());

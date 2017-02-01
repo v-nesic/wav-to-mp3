@@ -17,9 +17,9 @@ LameEncoder::LameEncoder(
 	_frames_at_once(kFramesAtOnceDefault),
 	_pcm_buffer(2*_frames_at_once), // LAME encoder always expects stereo input
 	_mp3_buffer(std::ceil(1.25*_frames_at_once+7200)), // recomened by LAME encoder docs
+	_pcm_right(0),
 	_lame_flags(0),
-	_mp3_file(0),
-	_pcm_right(0)
+	_mp3_file(0)
 {
 }
 

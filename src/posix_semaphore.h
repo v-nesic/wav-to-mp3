@@ -63,16 +63,7 @@ public:
      */
 	bool TryWait() { return 0 == sem_trywait(_semaphore.get()); }
 
-	/*!
-	 * \brief WaitAll repeatedly acquires sempahore until the number of
-	 *        locks mathces semaphore's initial value
-     *
-     * \return true on success, false in case of an error
-	 */
-	bool WaitAll();
-
 private:
-	unsigned int _value;
 	std::shared_ptr<sem_t> _semaphore;
 };
 

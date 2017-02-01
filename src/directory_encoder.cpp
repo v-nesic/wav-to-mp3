@@ -19,21 +19,21 @@ void DirectoryEncoder::SetMaxThreads(int max_threads)
 	_max_threads = max_threads;
 }
 
-bool DirectoryEncoder::Encode(const Directory& directory)
+bool DirectoryEncoder::Encode(const Directory& directory) const
 {
 	std::cout << "Ecoding " << directory.Path() << " using up to " << _max_threads << " threads." << std::endl;
 
 	int files_found = 0;
 	atomic<int> files_encoded(0);
 
-	ThreadPool threads(_max_threads);
+	ThreadPool* thread_pool = new ThreadPool(_max_threads);
 	for(FileName wav : directory)
 	{
 		if (wav.Type() == "WAV" && wav.IsFile())
 		{
 			++files_found;
 
-			bool thread_started = threads.StartNew(
+			bool thread_started = thread_pool->StartNew(
 				[wav, &files_encoded] () -> void
 				{
 					if (Encode(wav))
@@ -53,7 +53,7 @@ bool DirectoryEncoder::Encode(const Directory& directory)
 		}
 	}
 
-	threads.JoinAll();
+	delete thread_pool;
 
 	std::cout << files_found << " files found." << std::endl;
 	std::cout << files_encoded << " files encoded." << std::endl;

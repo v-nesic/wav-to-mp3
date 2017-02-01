@@ -11,8 +11,7 @@
  * \brief debugging class for measuring execution time, built as template to
  *        allow using different clock sources
  *
- * NOTE: this class is not synchronized, meaning that output can become
- *       garbled when multiple threads share the same file
+ * NOTE: output can become garbled when multiple threads log times to the same file
  */
 template<typename clock_class=std::chrono::steady_clock>
 class ScopeExecutionTimer

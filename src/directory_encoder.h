@@ -42,7 +42,7 @@ public:
 	 *
 	 * \return true if all files have been successfully encoded, false if some have failed
 	 */
-	bool Encode(const Directory& directory);
+	bool Encode(const Directory& directory) const;
 
 	/*!
 	 * \brief Encode encodes single .wav file into .mp3 with the same basename

@@ -18,27 +18,29 @@ struct ThreadPoolTest :
 
 	void StartSingleThread()
 	{
-		ThreadPool pool(5);
 		bool done = false;
 
-		ASSERT_TRUE(pool.StartNew([&done]() { done = true; }));
-		pool.JoinAll();
+		ThreadPool* thread_pool = new ThreadPool(5);
+		ASSERT_NOT_EQUAL(nullptr, thread_pool);
+		ASSERT_TRUE(thread_pool->StartNew([&done]() { done = true; }));
 
+		delete thread_pool;
 		EXPECT_TRUE(done);
 	}
 
 	void StartMultipleThreads()
 	{
 		static const int max_threads = 10;
-		ThreadPool pool(max_threads/2);
+		ThreadPool* thread_pool = new ThreadPool(max_threads/2);
+		ASSERT_NOT_EQUAL(nullptr, thread_pool);
 
 		atomic<int> threads_run(0);
 		for(int i = 0; i < max_threads; ++i)
 		{
-			ASSERT_TRUE(pool.StartNew([&threads_run](){ ++threads_run; }));
+			ASSERT_TRUE(thread_pool->StartNew([&threads_run](){ ++threads_run; }));
 		}
-		pool.JoinAll();
 
+		delete thread_pool;
 		EXPECT_EQUAL(max_threads, threads_run);
 	}
 

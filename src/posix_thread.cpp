@@ -2,16 +2,11 @@
 
 #include <iostream>
 
-PosixThread::PosixThread(std::function<void(void)> run_fn) :
+PosixThread::PosixThread(std::function<void(void)> run_fn, Owner* owner) :
 	_run_fn(run_fn),
-	_observer(0),
+	_owner(owner),
 	_thread(pthread_self())
 {
-}
-
-void PosixThread::SetObserver(PosixThread::Observer* observer)
-{
-	_observer = observer;
 }
 
 bool PosixThread::Start()
@@ -39,9 +34,9 @@ void* PosixThread::ThreadRunner(void* pthread_arg)
 	if (thread)
 	{
 		thread->_run_fn();
-		if (thread->_observer)
+		if (thread->_owner)
 		{
-			thread->_observer->ThreadFinished(thread);
+			thread->_owner->ThreadFinished(thread);
 		}
 	}
 

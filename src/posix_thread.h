@@ -10,21 +10,29 @@
  *
  * \brief a wrapper class for starting pthreads
  *
+ * NOTE: Threads are started by a separate method rather than by constructor
+ *       because it simplifies ThreadPool handling of (highly improbable)
+ *       thread-not-started event.
  */
 class PosixThread
 {
 public:
 	/*!
-	 * \class Observer
-	 * \brief helper class for monitoring thread execution
+	 * \class Owner thread owner interface
+	 *
+	 * \brief this class defines an interface which must be implemented by thread
+	 *        "owner" in oreder to get notified when the execution is done
 	 */
-	class Observer
+	class Owner
 	{
 	public:
 		/*!
 		 * \brief ThreadFinished thread finished event handler
 		 *
-		 * \param thread pointer to the finished thread
+		 * NOTE: this method is called in the context which allows the owner`
+		 *       to safely destroy finished thread object
+		 *
+		 * \param thread pointer to the object representing finished thread
 		 */
 		virtual void ThreadFinished(PosixThread* thread) = 0;
 	};
@@ -34,16 +42,7 @@ public:
 	 *
 	 * \param run_fn function object to be executed
 	 */
-	PosixThread(std::function<void(void)> run_fn);
-
-	/*!
-	 * \brief SetObserver sets thread observer
-	 *
-	 * NOTE: This method is reliable only if called before the thread is started
-	 *
-	 * \param observer new observer
-	 */
-	void SetObserver(Observer* observer);
+	PosixThread(std::function<void(void)> run_fn, Owner* owner = 0);
 
 	/*!
 	 * \brief Start configures new thread as detached and starts it
@@ -63,7 +62,7 @@ private:
 	static void* ThreadRunner(void* pthread_arg);
 
 	std::function<void(void)> _run_fn;
-	Observer* _observer;
+	Owner* _owner;
 	pthread_t _thread;
 };
 

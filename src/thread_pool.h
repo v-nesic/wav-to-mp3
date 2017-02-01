@@ -7,10 +7,18 @@
 /*!
  * \class ThreadPool
  *
- * \brief manages running threads and ensures that no more than max threads are
- *        executed at any given point in time.
+ * \brief manages thread objects and ensures that no more than max threads are
+ *        simultaneously executed at any given point in time.
+ *
+ * IMPLEMENTATION:
+ *   Thread counting and start/stop tracking is done by semaphore:
+ *    - inital semaphore value is set to max number of threads (= tokens available)
+ *    - before starting, each thread must acquire token (= wait for semaphore)
+ *    - every finished thread releases the token (= signals semaphore)
+ *    - JoinAll() ensures that no more threads are running by acquiring
+ *      all tokens provided by the semaphore
  */
-class ThreadPool : public PosixThread::Observer
+class ThreadPool : public PosixThread::Owner
 {
 public:
 	/*!
@@ -20,6 +28,11 @@ public:
 	 *					  0 sets max_threads to number of CPUs or CPU cores
 	 */
 	ThreadPool(unsigned int max_threads = 0);
+
+	/*!
+	 * \brief ThreadPool destructor, waits for all running threads to finish
+	 */
+	virtual ~ThreadPool();
 
 	/*!
 	 * \brief StartNew starts a new thread
@@ -32,11 +45,6 @@ public:
 	 * \return true if the new thread has been started, false in case of an error
 	 */
 	bool StartNew(std::function<void(void)> thread_fn);
-
-	/*!
-	 * \brief JoinAll waits for all currently running threads to finish
-	 */
-	void JoinAll();
 
 	// Observer interface
 	virtual void ThreadFinished(PosixThread* thread);
